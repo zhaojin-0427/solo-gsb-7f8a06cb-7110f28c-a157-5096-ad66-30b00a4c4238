@@ -1,10 +1,11 @@
 # 焦点审计 API（Focus Audit API）
 
-用 **Node.js + Express + parse5** 实现的可访问性审计服务，提供三个接口：
+用 **Node.js + Express + parse5** 实现的可访问性审计服务，提供四个接口：
 
 - `POST /audit`：提交一段 HTML 片段，返回其中可聚焦控件的 Tab 顺序、从 1 起的元素序号以及可访问性风险
 - `POST /accessible-names`：计算片段中控件与带 `role` 元素的可访问名称（accessible name），并报告缺失/循环引用与无名称元素
 - `POST /implicit-submit`：判定片段中每个 `<input>` 聚焦后按 Enter 能否触发[隐式提交（implicit submission）](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#implicit-submission)，返回表单归属、默认按钮、结果与原因
+- `POST /table-headers`：为每个 `<table>` 独立建立网格，审计每个 `<td>` 的显式表头（`<th>`）关联，返回 td 的全局元素先序号、所属表格序号、关联表头的全局先序号与问题
 
 ## 审计规则
 
@@ -265,6 +266,85 @@ curl -X POST http://localhost:3000/implicit-submit \
 }
 ```
 
+### `POST /table-headers`
+
+请求体形式与其他接口相同：直接发送 HTML 片段（`Content-Type: text/html`），或 JSON `{ "html": "<片段>" }`。
+
+审计 HTML 表格的**显式表头关联**，按 **td 文档序**返回片段中的**每一个 `<td>`**（`<th>` 不在结果中）。
+
+#### 网格（每个 table 独立）
+
+- 各 `<table>` 独立建网格，**嵌套表另算**：外表单元格里的嵌套表不会影响外表的行列，自身作为独立表格编号
+- 行只取本表**直属 `<tr>`** 以及 `<thead>/<tbody>/<tfoot>` 下的 `<tr>`（按文档序）；其他位置的行忽略
+- 每行按文档序放置其**直属 `<th>`、`<td>`**，落格时先跳过被上方 `rowspan` 占据的跨行占位；嵌套表里的单元格不是直属单元格，不会进入外表网格
+- `rowspan`、`colspan` 仅接受 **1～20 的十进制整数**（允许前后空白），`0`、负数、小数、非数字、大于 20 等一律按 `1` 处理；表头覆盖其跨越的所有格
+
+#### 表头关联（只处理 td）
+
+1. **带 `headers` 属性的 td**：属性值按空白拆成令牌，按令牌顺序关联**本表**首个同 `id` 的 `<th>`，关联结果按令牌顺序去重；引用不到的令牌记 `INVALID_HEADER_REFERENCE`（同一 td 内重复的无效 id 只报一次）。**不再自动推断**——即使全部引用无效也不回退到 scope 推断；`id` 解析只在本表内进行，外表/嵌套表的 id 互不可见
+2. **其余 td 自动推断**：
+   - **上方**：列区间与该 td 列区间相交（表头列覆盖 td 任一列）且表头整体位于 td 上方的 `scope="col"` 表头
+   - **左侧**：行区间与该 td 行区间相交（表头行覆盖 td 任一行）且表头整体位于 td 左侧的 `scope="row"` 表头
+   - `scope` 大小写不敏感、允许前后空白；`colgroup`/`rowgroup` 及其他 scope 值**不处理**，无 `scope` 的 `<th>` 也不参与
+   - 两组结果合并后按**表头文档序去重**
+
+没有任何有效表头关联（含 `headers` 全部引用无效）的 td 记 `NO_HEADER`。
+
+每个结果单元格字段：
+
+- `dom`：td 在全部元素中的**全局先序号**（从 1 起，非 td 元素、合成的 `<tbody>` 等也占位）
+- `table`：所属表格的**表格序号**（表格按文档序从 1 起）
+- `headers`：关联到的 `<th>` 的**全局元素先序号**数组
+- `issues`：该 td 的问题（`INVALID_HEADER_REFERENCE` 带 `refId`；`NO_HEADER`）
+
+```bash
+curl -X POST http://localhost:3000/table-headers \
+  -H 'Content-Type: text/html' \
+  --data-binary '<table>
+  <tr><th id="name" scope="col">项目</th><th id="age" scope="col">数值</th></tr>
+  <tr><th scope="row">年龄</th><td headers="age ghost">28</td></tr>
+</table>
+<table>
+  <tr><td>没有表头</td></tr>
+</table>'
+```
+
+返回示例（节选；注意 parse5 会为直属 `<tr>` 合成 `<tbody>`，合成元素同样占全局序号）：
+
+```json
+{
+  "count": { "tables": 2, "cells": 2, "issues": 2, "invalidHeaderReferences": 1, "noHeader": 1 },
+  "cells": [
+    {
+      "dom": 8, "tag": "td", "table": 1, "headers": [5],
+      "issues": [
+        { "type": "INVALID_HEADER_REFERENCE", "refId": "ghost",
+          "detail": "第 8 号元素 <td> 的 headers 引用了本表中不存在的 id \"ghost\"" }
+      ],
+      "location": { "line": 3, "column": 30 }
+    },
+    {
+      "dom": 12, "tag": "td", "table": 2, "headers": [],
+      "issues": [
+        { "type": "NO_HEADER", "detail": "第 12 号元素 <td> 没有任何有效表头关联" }
+      ],
+      "location": { "line": 6, "column": 7 }
+    }
+  ],
+  "issues": [
+    { "type": "INVALID_HEADER_REFERENCE", "dom": 8, "tag": "td", "table": 1, "refId": "ghost", "detail": "…" },
+    { "type": "NO_HEADER", "dom": 12, "tag": "td", "table": 2, "detail": "…" }
+  ]
+}
+```
+
+上例中第 1 个 td 显式 `headers` 里 `age` 成功关联到本表第 5 号 `<th>`，`ghost` 引用无效（但不再补推断左侧的行表头）；第 2 个表格的 td 找不到任何表头，报 `NO_HEADER`。
+
+问题类型：
+
+- `INVALID_HEADER_REFERENCE`：`headers` 令牌在本表中找不到同 id 的 `<th>`（首个同 id 元素不是 th 也算无效）
+- `NO_HEADER`：该 td 没有任何有效表头关联
+
 ### `GET /health`
 
 健康检查，返回 `{"status":"ok"}`。
@@ -275,7 +355,7 @@ curl -X POST http://localhost:3000/implicit-submit \
 npm test
 ```
 
-使用 Node.js 内置测试运行器，覆盖排序、排除、radio 分组、风险判定，可访问名称的优先级、递归展开、缺失/循环引用、label 关联，隐式提交的表单归属、默认按钮（含失效不改选）、阻止型输入计数、disabled fieldset 与 legend 例外，以及 HTTP 端点接线等 54 个用例。
+使用 Node.js 内置测试运行器，覆盖排序、排除、radio 分组、风险判定，可访问名称的优先级、递归展开、缺失/循环引用、label 关联，隐式提交的表单归属、默认按钮（含失效不改选）、阻止型输入计数、disabled fieldset 与 legend 例外，表头关联的网格落格（rowspan/colspan 占位与取值范围）、`headers` 显式关联（含无效引用、本表作用域、去重）、scope 推断与嵌套表隔离，以及 HTTP 端点接线等 74 个用例。
 
 ## 项目结构
 
@@ -284,12 +364,14 @@ src/
   audit.js             # 焦点顺序审计逻辑（parse5 解析 + 规则判定）
   accessible-names.js  # 可访问名称计算（aria-labelledby 递归展开、label 关联等）
   implicit-submit.js   # Enter 隐式提交判定（表单归属、默认按钮、disabled fieldset 等）
-  app.js               # Express 应用（/audit、/accessible-names、/implicit-submit、/health）
+  table-headers.js     # 表格表头关联审计（每表独立网格、headers 显式关联与 scope 推断）
+  app.js               # Express 应用（/audit、/accessible-names、/implicit-submit、/table-headers、/health）
   server.js            # 启动入口
 test/
   audit.test.js
   accessible-names.test.js
   implicit-submit.test.js
+  table-headers.test.js
 Dockerfile
 docker-compose.yml
 ```

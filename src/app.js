@@ -4,6 +4,7 @@ const express = require('express');
 const { auditHtml } = require('./audit');
 const { accessibleNames } = require('./accessible-names');
 const { implicitSubmit } = require('./implicit-submit');
+const { tableHeaders } = require('./table-headers');
 
 const app = express();
 
@@ -71,6 +72,21 @@ app.post('/implicit-submit', (req, res) => {
     return res.status(500).json({
       error: 'IMPLICIT_SUBMIT_FAILED',
       message: err && err.message ? err.message : '隐式提交判定失败',
+    });
+  }
+});
+
+app.post('/table-headers', (req, res) => {
+  const html = extractHtml(req);
+  if (html === null) return badRequest(res);
+
+  try {
+    const result = tableHeaders(html);
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({
+      error: 'TABLE_HEADERS_FAILED',
+      message: err && err.message ? err.message : '表头关联审计失败',
     });
   }
 });
