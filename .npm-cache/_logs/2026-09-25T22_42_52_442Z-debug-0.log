@@ -1,0 +1,91 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.20.2
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/workspace/.npmrc
+5 silly config load:file:/home/node/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install
+8 verbose argv "install" "--cache" "/workspace/.npm-cache" "--prefer-offline" "--no-audit" "--no-fund"
+9 verbose logfile logs-max:10 dir:/workspace/.npm-cache/_logs/2026-09-25T22_42_52_442Z-
+10 verbose logfile /workspace/.npm-cache/_logs/2026-09-25T22_42_52_442Z-debug-0.log
+11 silly packumentCache heap:549453824 maxSize:137363456 maxEntrySize:68681728
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly reify moves {}
+15 silly ADD node_modules/vary
+16 silly ADD node_modules/utils-merge
+17 silly ADD node_modules/unpipe
+18 silly ADD node_modules/type-is
+19 silly ADD node_modules/toidentifier
+20 silly ADD node_modules/statuses
+21 silly ADD node_modules/side-channel-weakmap
+22 silly ADD node_modules/side-channel-map
+23 silly ADD node_modules/side-channel-list
+24 silly ADD node_modules/side-channel
+25 silly ADD node_modules/setprototypeof
+26 silly ADD node_modules/serve-static
+27 silly ADD node_modules/send
+28 silly ADD node_modules/send/node_modules/ms
+29 silly ADD node_modules/safer-buffer
+30 silly ADD node_modules/safe-buffer
+31 silly ADD node_modules/raw-body
+32 silly ADD node_modules/range-parser
+33 silly ADD node_modules/qs
+34 silly ADD node_modules/proxy-addr
+35 silly ADD node_modules/path-to-regexp
+36 silly ADD node_modules/parseurl
+37 silly ADD node_modules/parse5
+38 silly ADD node_modules/on-finished
+39 silly ADD node_modules/object-inspect
+40 silly ADD node_modules/negotiator
+41 silly ADD node_modules/ms
+42 silly ADD node_modules/mime-types
+43 silly ADD node_modules/mime-db
+44 silly ADD node_modules/mime
+45 silly ADD node_modules/methods
+46 silly ADD node_modules/merge-descriptors
+47 silly ADD node_modules/media-typer
+48 silly ADD node_modules/math-intrinsics
+49 silly ADD node_modules/ipaddr.js
+50 silly ADD node_modules/inherits
+51 silly ADD node_modules/iconv-lite
+52 silly ADD node_modules/http-errors
+53 silly ADD node_modules/hasown
+54 silly ADD node_modules/has-symbols
+55 silly ADD node_modules/gopd
+56 silly ADD node_modules/get-proto
+57 silly ADD node_modules/get-intrinsic
+58 silly ADD node_modules/function-bind
+59 silly ADD node_modules/fresh
+60 silly ADD node_modules/forwarded
+61 silly ADD node_modules/finalhandler
+62 silly ADD node_modules/express
+63 silly ADD node_modules/etag
+64 silly ADD node_modules/escape-html
+65 silly ADD node_modules/es-object-atoms
+66 silly ADD node_modules/es-errors
+67 silly ADD node_modules/es-define-property
+68 silly ADD node_modules/entities
+69 silly ADD node_modules/encodeurl
+70 silly ADD node_modules/ee-first
+71 silly ADD node_modules/dunder-proto
+72 silly ADD node_modules/destroy
+73 silly ADD node_modules/depd
+74 silly ADD node_modules/debug
+75 silly ADD node_modules/cookie-signature
+76 silly ADD node_modules/cookie
+77 silly ADD node_modules/content-type
+78 silly ADD node_modules/content-disposition
+79 silly ADD node_modules/call-bound
+80 silly ADD node_modules/call-bind-apply-helpers
+81 silly ADD node_modules/bytes
+82 silly ADD node_modules/body-parser
+83 silly ADD node_modules/array-flatten
+84 silly ADD node_modules/accepts
+85 verbose cwd /workspace
+86 verbose os Linux 6.8.0-88-generic
+87 verbose node v20.20.2
+88 verbose npm  v10.8.2
+89 verbose exit 0
+90 info ok

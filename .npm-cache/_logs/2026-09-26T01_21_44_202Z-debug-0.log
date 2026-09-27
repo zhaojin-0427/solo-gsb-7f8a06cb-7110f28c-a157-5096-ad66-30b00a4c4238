@@ -1,0 +1,164 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.20.2
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/workspace/.npmrc
+5 silly config load:file:/home/node/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm install
+8 verbose argv "install" "--cache" "/workspace/.npm-cache"
+9 verbose logfile logs-max:10 dir:/workspace/.npm-cache/_logs/2026-09-26T01_21_44_202Z-
+10 verbose logfile /workspace/.npm-cache/_logs/2026-09-26T01_21_44_202Z-debug-0.log
+11 silly packumentCache heap:549453824 maxSize:137363456 maxEntrySize:68681728
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly reify moves {}
+15 silly audit bulk request {
+15 silly audit   accepts: [ '1.3.8' ],
+15 silly audit   'array-flatten': [ '1.1.1' ],
+15 silly audit   'body-parser': [ '1.20.8' ],
+15 silly audit   bytes: [ '3.1.2' ],
+15 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+15 silly audit   'call-bound': [ '1.0.4' ],
+15 silly audit   'content-disposition': [ '0.5.4' ],
+15 silly audit   'content-type': [ '1.0.5' ],
+15 silly audit   cookie: [ '0.7.2' ],
+15 silly audit   'cookie-signature': [ '1.0.7' ],
+15 silly audit   debug: [ '2.6.9' ],
+15 silly audit   depd: [ '2.0.0' ],
+15 silly audit   destroy: [ '1.2.0' ],
+15 silly audit   'dunder-proto': [ '1.0.1' ],
+15 silly audit   'ee-first': [ '1.1.1' ],
+15 silly audit   encodeurl: [ '2.0.0' ],
+15 silly audit   entities: [ '6.0.1' ],
+15 silly audit   'es-define-property': [ '1.0.1' ],
+15 silly audit   'es-errors': [ '1.3.0' ],
+15 silly audit   'es-object-atoms': [ '1.1.2' ],
+15 silly audit   'escape-html': [ '1.0.3' ],
+15 silly audit   etag: [ '1.8.1' ],
+15 silly audit   express: [ '4.22.3' ],
+15 silly audit   finalhandler: [ '1.3.2' ],
+15 silly audit   forwarded: [ '0.2.0' ],
+15 silly audit   fresh: [ '0.5.2' ],
+15 silly audit   'function-bind': [ '1.1.2' ],
+15 silly audit   'get-intrinsic': [ '1.3.0' ],
+15 silly audit   'get-proto': [ '1.0.1' ],
+15 silly audit   gopd: [ '1.2.0' ],
+15 silly audit   'has-symbols': [ '1.1.0' ],
+15 silly audit   hasown: [ '2.0.4' ],
+15 silly audit   'http-errors': [ '2.0.1' ],
+15 silly audit   'iconv-lite': [ '0.4.24' ],
+15 silly audit   inherits: [ '2.0.4' ],
+15 silly audit   'ipaddr.js': [ '1.9.1' ],
+15 silly audit   'math-intrinsics': [ '1.1.0' ],
+15 silly audit   'media-typer': [ '0.3.0' ],
+15 silly audit   'merge-descriptors': [ '1.0.3' ],
+15 silly audit   methods: [ '1.1.2' ],
+15 silly audit   mime: [ '1.6.0' ],
+15 silly audit   'mime-db': [ '1.52.0' ],
+15 silly audit   'mime-types': [ '2.1.35' ],
+15 silly audit   ms: [ '2.0.0', '2.1.3' ],
+15 silly audit   negotiator: [ '0.6.3' ],
+15 silly audit   'object-inspect': [ '1.13.4' ],
+15 silly audit   'on-finished': [ '2.4.1' ],
+15 silly audit   parse5: [ '7.3.0' ],
+15 silly audit   parseurl: [ '1.3.3' ],
+15 silly audit   'path-to-regexp': [ '0.1.13' ],
+15 silly audit   'proxy-addr': [ '2.0.8' ],
+15 silly audit   qs: [ '6.16.0' ],
+15 silly audit   'range-parser': [ '1.2.1' ],
+15 silly audit   'raw-body': [ '2.5.3' ],
+15 silly audit   'safe-buffer': [ '5.2.1' ],
+15 silly audit   'safer-buffer': [ '2.1.2' ],
+15 silly audit   send: [ '0.19.2' ],
+15 silly audit   'serve-static': [ '1.16.3' ],
+15 silly audit   setprototypeof: [ '1.2.0' ],
+15 silly audit   'side-channel': [ '1.1.1' ],
+15 silly audit   'side-channel-list': [ '1.0.1' ],
+15 silly audit   'side-channel-map': [ '1.0.1' ],
+15 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+15 silly audit   statuses: [ '2.0.2' ],
+15 silly audit   toidentifier: [ '1.0.1' ],
+15 silly audit   'type-is': [ '1.6.18' ],
+15 silly audit   unpipe: [ '1.0.0' ],
+15 silly audit   'utils-merge': [ '1.0.1' ],
+15 silly audit   vary: [ '1.1.2' ]
+15 silly audit }
+16 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 576ms
+17 silly audit report {}
+18 silly ADD node_modules/vary
+19 silly ADD node_modules/utils-merge
+20 silly ADD node_modules/unpipe
+21 silly ADD node_modules/type-is
+22 silly ADD node_modules/toidentifier
+23 silly ADD node_modules/statuses
+24 silly ADD node_modules/side-channel-weakmap
+25 silly ADD node_modules/side-channel-map
+26 silly ADD node_modules/side-channel-list
+27 silly ADD node_modules/side-channel
+28 silly ADD node_modules/setprototypeof
+29 silly ADD node_modules/serve-static
+30 silly ADD node_modules/send
+31 silly ADD node_modules/send/node_modules/ms
+32 silly ADD node_modules/safer-buffer
+33 silly ADD node_modules/safe-buffer
+34 silly ADD node_modules/raw-body
+35 silly ADD node_modules/range-parser
+36 silly ADD node_modules/qs
+37 silly ADD node_modules/proxy-addr
+38 silly ADD node_modules/path-to-regexp
+39 silly ADD node_modules/parseurl
+40 silly ADD node_modules/parse5
+41 silly ADD node_modules/on-finished
+42 silly ADD node_modules/object-inspect
+43 silly ADD node_modules/negotiator
+44 silly ADD node_modules/ms
+45 silly ADD node_modules/mime-types
+46 silly ADD node_modules/mime-db
+47 silly ADD node_modules/mime
+48 silly ADD node_modules/methods
+49 silly ADD node_modules/merge-descriptors
+50 silly ADD node_modules/media-typer
+51 silly ADD node_modules/math-intrinsics
+52 silly ADD node_modules/ipaddr.js
+53 silly ADD node_modules/inherits
+54 silly ADD node_modules/iconv-lite
+55 silly ADD node_modules/http-errors
+56 silly ADD node_modules/hasown
+57 silly ADD node_modules/has-symbols
+58 silly ADD node_modules/gopd
+59 silly ADD node_modules/get-proto
+60 silly ADD node_modules/get-intrinsic
+61 silly ADD node_modules/function-bind
+62 silly ADD node_modules/fresh
+63 silly ADD node_modules/forwarded
+64 silly ADD node_modules/finalhandler
+65 silly ADD node_modules/express
+66 silly ADD node_modules/etag
+67 silly ADD node_modules/escape-html
+68 silly ADD node_modules/es-object-atoms
+69 silly ADD node_modules/es-errors
+70 silly ADD node_modules/es-define-property
+71 silly ADD node_modules/entities
+72 silly ADD node_modules/encodeurl
+73 silly ADD node_modules/ee-first
+74 silly ADD node_modules/dunder-proto
+75 silly ADD node_modules/destroy
+76 silly ADD node_modules/depd
+77 silly ADD node_modules/debug
+78 silly ADD node_modules/cookie-signature
+79 silly ADD node_modules/cookie
+80 silly ADD node_modules/content-type
+81 silly ADD node_modules/content-disposition
+82 silly ADD node_modules/call-bound
+83 silly ADD node_modules/call-bind-apply-helpers
+84 silly ADD node_modules/bytes
+85 silly ADD node_modules/body-parser
+86 silly ADD node_modules/array-flatten
+87 silly ADD node_modules/accepts
+88 verbose cwd /workspace
+89 verbose os Linux 6.8.0-88-generic
+90 verbose node v20.20.2
+91 verbose npm  v10.8.2
+92 verbose exit 0
+93 info ok
