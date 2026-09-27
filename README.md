@@ -1,10 +1,11 @@
 # 焦点审计 API（Focus Audit API）
 
-用 **Node.js + Express + parse5** 实现的可访问性审计服务，提供三个接口：
+用 **Node.js + Express + parse5** 实现的可访问性审计服务，提供四个接口：
 
 - `POST /audit`：提交一段 HTML 片段，返回其中可聚焦控件的 Tab 顺序、从 1 起的元素序号以及可访问性风险
 - `POST /accessible-names`：计算片段中控件与带 `role` 元素的可访问名称（accessible name），并报告缺失/循环引用与无名称元素
 - `POST /implicit-submit`：判定片段中每个 `<input>` 聚焦后按 Enter 能否触发[隐式提交（implicit submission）](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#implicit-submission)，返回表单归属、默认按钮、结果与原因
+- `POST /table-headers`：审计片段中各 `<table>` 数据格（`<td>`）的显式表头关联，返回每个 td 关联到的表头、表格序号与问题
 
 ## 审计规则
 
@@ -265,6 +266,74 @@ curl -X POST http://localhost:3000/implicit-submit \
 }
 ```
 
+### `POST /table-headers`
+
+请求体形式与其他接口相同：直接发送 HTML 片段（`Content-Type: text/html`），或 JSON `{ "html": "..." }`。
+
+审计片段中**每个 `<table>`** 的数据格（`<td>`）与表头（`<th>`）的显式关联，按**文档序**返回每个 td 的结果；`dom` 是该 td 在全部元素中文档序从 1 起的编号。
+
+#### 建网格（每个 table 独立）
+
+- 只计本表**直属 `tr`** 及 `thead` / `tbody` / `tfoot` 下的 `tr`（解析器为裸 `tr` 补出的隐式 `tbody` 同样计入）；**嵌套表另算**，外表行中不包含内表的行
+- 按文档序逐行放置每个 `tr` 直属的 `th`、`td`，放置前先跳过被跨行占用的格
+- `rowspan`、`colspan` 仅接受 **1～20 的十进制整数**（允许前后空白）；`0`、负数、`21` 及以上、非数字等一律按 `1`
+- 表头覆盖其跨越的全部格（按矩形的行/列区间求交）
+
+#### 表头关联
+
+- **带 `headers` 属性的 td**：把属性值按空白拆成令牌，按令牌顺序关联**本表首个同 id 的 `<th>`**，同一表头按首次出现去重；引用不到（id 不存在、指向非 `th`、指向其他表）按令牌去重后报 `INVALID_HEADER_REFERENCE`。存在该属性时**不再自动推断**（属性为空串等同显式声明空关联）
+- **其余 td** 自动推断：
+  - 上方（表头起始行严格更小）**列区间相交**的 `scope="col"` 表头；
+  - 左侧（表头起始列严格更小）**行区间相交**的 `scope="row"` 表头；
+  - 按表头文档序去重；`scope` 的其他取值（`colgroup`、`rowgroup`、空值、非法值）一律不处理
+- 任何 td 关联不到有效表头时报 `NO_HEADER`（带 `headers` 且令牌全部无效时，先列无效引用、再列 `NO_HEADER`）
+
+返回中 `headers` 是关联到的表头的全局 `dom` 编号数组；`table` 是该 td 所属表格按文档序从 1 起的编号；每个 td 的 `issues` 同时汇总在顶层 `issues` 中。
+
+```bash
+curl -X POST http://localhost:3000/table-headers \
+  -H 'Content-Type: text/html' \
+  --data-binary '<table>
+  <thead>
+    <tr><th scope="col" id="name" colspan="2">名称</th><th scope="col" id="qty">数量</th></tr>
+    <tr><th scope="col" id="cn">中文</th><th scope="col" id="en">英文</th></tr>
+  </thead>
+  <tbody>
+    <tr><th scope="row" rowspan="2">水果</th><td>苹果</td><td headers="qty">2</td></tr>
+    <tr><td>香蕉</td><td>3</td></tr>
+  </tbody>
+</table>'
+```
+
+返回示例（节选）：
+
+```json
+{
+  "count": { "tables": 1, "cells": 4, "withHeaders": 4, "noHeader": 0, "invalidReferences": 0, "issues": 0 },
+  "cells": [
+    {
+      "dom": 12, "table": 1,
+      "headers": [4, 8, 11],
+      "issues": [],
+      "location": { "line": 7, "column": 44 }
+    },
+    {
+      "dom": 13, "table": 1,
+      "headers": [5],
+      "issues": []
+    }
+  ],
+  "issues": []
+}
+```
+
+问题类型：
+
+| type | 含义 |
+| --- | --- |
+| `INVALID_HEADER_REFERENCE` | `headers` 属性的某个令牌在本表中找不到同 id 的 `<th>`（不存在 / 指向非 th / 指向其他表），`refId` 给出该令牌 |
+| `NO_HEADER` | 该 td 最终没有关联到任何表头 |
+
 ### `GET /health`
 
 健康检查，返回 `{"status":"ok"}`。
@@ -275,7 +344,7 @@ curl -X POST http://localhost:3000/implicit-submit \
 npm test
 ```
 
-使用 Node.js 内置测试运行器，覆盖排序、排除、radio 分组、风险判定，可访问名称的优先级、递归展开、缺失/循环引用、label 关联，隐式提交的表单归属、默认按钮（含失效不改选）、阻止型输入计数、disabled fieldset 与 legend 例外，以及 HTTP 端点接线等 54 个用例。
+使用 Node.js 内置测试运行器，覆盖排序、排除、radio 分组、风险判定，可访问名称的优先级、递归展开、缺失/循环引用、label 关联，隐式提交的表单归属、默认按钮（含失效不改选）、阻止型输入计数、disabled fieldset 与 legend 例外，表头关联的独立网格/嵌套表、跨行跨列占位与覆盖、`headers` 显式关联与无效引用、`scope` 推断，以及 HTTP 端点接线等 75 个用例。
 
 ## 项目结构
 
@@ -284,12 +353,14 @@ src/
   audit.js             # 焦点顺序审计逻辑（parse5 解析 + 规则判定）
   accessible-names.js  # 可访问名称计算（aria-labelledby 递归展开、label 关联等）
   implicit-submit.js   # Enter 隐式提交判定（表单归属、默认按钮、disabled fieldset 等）
-  app.js               # Express 应用（/audit、/accessible-names、/implicit-submit、/health）
+  table-headers.js     # HTML 表格表头关联审计（独立网格、跨行跨列、headers/scope 关联等）
+  app.js               # Express 应用（/audit、/accessible-names、/implicit-submit、/table-headers、/health）
   server.js            # 启动入口
 test/
   audit.test.js
   accessible-names.test.js
   implicit-submit.test.js
+  table-headers.test.js
 Dockerfile
 docker-compose.yml
 ```
